@@ -32,9 +32,13 @@ class EntityPosMarker:
             obj_pos: object entity marker 시작 위치 인덱스
 
         Example:
-            sentence: '제임스 얼 "지미"카터 주니어(, 1924년 10월 1일 ~ )는 민주당 출신 미국 39번째 대통령 (1977년 ~ 1981년)이다.'
-            subject_pos_range: [0, 5] (제임스 얼)
-            object_pos_range: [10, 16] (카터 주니어)
+            sentence: "한국은 동아시아의 한반도에 위치하고 있다."
+            subj_name: "한국"
+            subj_tag: "LC"
+            subj_pos: [0, 2]
+            obj_name: "동아시아"
+            obj_tag: "LC"
+            obj_pos: [4, 8]
 
             1. special token 추가
                 '[unused1] 제임스 얼 [unused2] "지미"[unused3] 카터 주니어 [unused4](, 1924년 10월 1일 ~ )는 민주당 출신 미국 39번째 대통령 (1977년 ~ 1981년)이다.'
