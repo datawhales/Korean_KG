@@ -46,7 +46,8 @@ class EntityPosMarker:
                 tokenized_sentence = ['[CLS]', '[unused1]', '한국', '[unused2]', '##은', '[unused3]', '동', '##아', '##시아', 
                                     '[unused4]', '##의', '한', '##반', '##도에', '위', '##치', '##하고', '있다', '.', '[SEP]']
             3. tokenized sentence를 BERT-input ids로 변환 및 entities 위치 찾아 return
-                [101, 102]
+                tokenized_input_ids = [101, 1, 48556, 2, 10892, 3, 9095, 16985, 46861, 4, 10459, 9954, 30134, 108521,
+                                    9619, 18622, 12453, 11506, 119, 102]
         """
         # subj_name, obj_name
         subj_name = sentence[subj_pos_range[0]:subj_pos_range[1]]
