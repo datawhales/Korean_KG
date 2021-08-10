@@ -21,7 +21,7 @@ class EntityPosMarker:
         self.args = args
     
     def tokenize(self, sentence, subj_pos_range, obj_pos_range):
-        """ Tokenizer.
+        """ Entity Marker를 special token 형태로 추가한 후 BERT-input ids로 변환하는 함수.
 
         Args:
             sentence: 한국어 문장 (type: str)
@@ -37,12 +37,8 @@ class EntityPosMarker:
 
         Example:
             sentence: "한국은 동아시아의 한반도에 위치하고 있다."
-            subj_name: "한국"
-            subj_tag: "LC"
-            subj_pos: [0, 2]
-            obj_name: "동아시아"
-            obj_tag: "LC"
-            obj_pos: [4, 8]
+            subj_pos_range: [0, 2] ("한국")
+            obj_pos_range: [4, 8] ("동아시아")
 
             1. tokenizer.tokenize(sentence)
                 tokens = ['한국', '##은', '동', '##아', '##시아', '##의', '한', '##반', '##도에', '위', '##치', '##하고', '있다', '.']
@@ -142,7 +138,7 @@ class EntityPosMarker:
             obj_marker_end = 2
 
         tokenized_input_ids = self.tokenizer.convert_tokens_to_ids(tokenized_sentence)
-        
+
         return tokenized_input_ids, subj_marker_start, subj_marker_end, obj_marker_start, obj_marker_end
         
 if __name__ == "__main__":
