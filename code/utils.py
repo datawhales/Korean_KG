@@ -1,6 +1,7 @@
 import os
 from glob import glob
 import json
+import re
 import argparse
 
 from transformers import BertTokenizer
@@ -18,7 +19,7 @@ class EntityPosMarker:
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-cased')
         self.args = args
     
-    def tokenize(self, sentence, subject_pos_range, object_pos_range):
+    def tokenize(self, sentence, subj_pos_range, obj_pos_range):
         """ Tokenizer.
 
         Args:
@@ -28,8 +29,8 @@ class EntityPosMarker:
 
         Returns:
             tokenized_input_ids: BERT-input ids
-            subj_pos: subject entity marker 시작 위치 인덱스
-            obj_pos: object entity marker 시작 위치 인덱스
+            subj_token_start: subject entity marker 시작 위치 인덱스
+            obj_token_start: object entity marker 시작 위치 인덱스
 
         Example:
             sentence: "한국은 동아시아의 한반도에 위치하고 있다."
@@ -40,12 +41,63 @@ class EntityPosMarker:
             obj_tag: "LC"
             obj_pos: [4, 8]
 
-            1. special token 추가
-                '[unused1] 제임스 얼 [unused2] "지미"[unused3] 카터 주니어 [unused4](, 1924년 10월 1일 ~ )는 민주당 출신 미국 39번째 대통령 (1977년 ~ 1981년)이다.'
-            2. 
+            1. tokenizer.tokenize(sentence)
+                tokens = ['한국', '##은', '동', '##아', '##시아', '##의', '한', '##반', '##도에', '위', '##치', '##하고', '있다', '.']
+            2. special token 추가
+                "[CLS] [unused1] 한국 [unused2] ##은 [unused3] 동 ##아 ##시아 [unused4] ##의 한 ##반 ##도에 위 ##치 ##하고 있다 . [SEP]"
+            3. tokenized sentence를 BERT-input ids로 변환 및 entities 위치 찾아 return
+                [101, 102]
         """
-        pass
+        # subj_name, obj_name
+        subj_name = sentence[subj_pos_range[0]:subj_pos_range[1]]
+        obj_name = sentence[obj_pos_range[0]:obj_pos_range[1]]
 
+        subj_start_idx, subj_end_idx = [], []
+        obj_start_idx, obj_end_idx = [], []
+
+        # 1. tokenizer.tokenize(sentence)
+        tokens = self.tokenizer.tokenize(sentence)
+
+        for i, token in enumerate(tokens):
+            if token[0] == subj_name[0]:
+                subj_start_idx.append(i)
+            if token[-1] == subj_name[-1]:
+                subj_end_idx.append(i)
+        
+            if token[0] == obj_name[0]:
+                obj_start_idx.append(i)
+            if token[-1] == obj_name[-1]:
+                obj_end_idx.append(i)
+        
+        # subj token idx
+        subj_flag = False
+        for i in subj_start_idx:
+            for j in subj_end_idx:
+                # tmp_tokens = ['한국']
+                tmp_tokens = tokens[i:j+1]
+                subj_cand = " ".join(tmp_tokens)
+                subj_cand = re.sub(" ##", "", subj_cand)
+                if subj_cand == subj_name:
+                    subj_token_start, subj_token_end = i, j
+                    subj_flag = True
+                    break
+            if subj_flag:
+                break
+        
+        obj_flag = False
+        for i in obj_start_idx:
+            for j in obj_end_idx:
+                # tmp_tokens = ['동', '##아', '##시아']
+                tmp_tokens = tokens[i:j+1]
+                obj_cand = " ".join(tmp_tokens)
+                obj_cand = re.sub(" ##", "", obj_cand)
+                if obj_cand == obj_name:
+                    obj_token_start, obj_token_end = i, j
+                    obj_flag = True
+                    break
+            if obj_flag:
+                break
+        
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
