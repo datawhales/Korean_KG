@@ -139,4 +139,3 @@ if __name__ == "__main__":
     write_text_file("../data/train.txt", train_data)
     write_text_file("../data/dev.txt", dev_data)
     write_text_file("../data/test.txt", test_data)
-    
