@@ -1,6 +1,5 @@
 import os
 import json
-import argparse
 from glob import glob
 
 def modify_data(input_filepath):
@@ -67,19 +66,34 @@ def modify_data(input_filepath):
         json.dump(modified_data, f, ensure_ascii=False, indent=4)
 
 def combine_json_data(file_list):
-    """ file_list에 존재하는 전체 wikipedia_XXXX.json 파일을
-        하나의 리스트에 저장하고 리스트를 return하는 함수.
+    """ file_list에 존재하는 전체 wikipedia_XXXX.json 파일을 parsing하여
+        모든 triple data를 하나의 리스트에 저장하고 리스트를 return하는 함수.
     """
     data = []
     for json_file in file_list:
         with open(json_file) as f:
             json_data = json.load(f)
-            data.append(json_data)
+            for sent in json_data:
+                data.append(sent)
     return data
 
-def write_data(output_filename, data):
-    """ data 안의 dict 형태로 담겨 있는 triple 정보를
-        하나의 텍스트 파일로 저장하는 함수.    
+def write_rel2id(filename, data):
+    """ 전체 data에 존재하는 relation을 숫자로 인코딩하여 json file로 저장하는 함수.
+    """
+    rel2id = dict()
+    rel_idx = 0
+    for item in data:
+        if item["description"] not in rel2id:
+            rel2id[item["description"]] = rel_idx
+            rel_idx += 1
+
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(rel2id, f, ensure_ascii=False, indent=4)
+    
+def write_text_file(output_filename, data):
+    """ data 안의 dict 형태로 담겨 있는 triple data를
+        하나의 텍스트 파일로 저장하는 함수.
+        Use to write train.txt, dev.txt, test.txt.
     """
     with open(output_filename, 'a') as f:
         for item in data:
@@ -87,8 +101,6 @@ def write_data(output_filename, data):
             f.write(dump)
             f.write('\n')
 
-
-    
 if __name__ == "__main__":
     file_list = glob('../data/KBN_data/*')
     file_list.sort()
@@ -102,8 +114,26 @@ if __name__ == "__main__":
 
     modified_file_list = glob("../data/modified_KBN_data/*")
     modified_file_list.sort()
-    
+
+    # 변형된 전체 데이터 통합하여 하나의 리스트에 저장
     total_data = combine_json_data(modified_file_list)
-            
+    
+    write_rel2id("../data/rel2id.json", total_data)
+
+    # total_data_num = 전체 데이터 개수
+    total_data_num = len(total_data)
+    print(f"Total number of data: {len(total_data)}")
+    print('*' * 30)
+    # train, dev, test split
+    train_data = total_data[:int(0.6 * total_data_num)]
+    dev_data = total_data[int(0.6 * total_data_num):int(0.8 * total_data_num)]
+    test_data = total_data[int(0.8 * total_data_num):]
+
+    print(f"The number of train data: {len(train_data)}")
+    print(f"The number of dev data: {len(dev_data)}")
+    print(f"The number of test data: {len(test_data)}")
+    print('*' * 30)
+
     for data in total_data:
         write_data("./triple_data.txt", data)
+    
