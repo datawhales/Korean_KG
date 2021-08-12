@@ -95,7 +95,7 @@ def write_text_file(output_filename, data):
         하나의 텍스트 파일로 저장하는 함수.
         Use to write train.txt, dev.txt, test.txt.
     """
-    with open(output_filename, 'a') as f:
+    with open(output_filename, 'w') as f:
         for item in data:
             dump = json.dumps(item, ensure_ascii=False)
             f.write(dump)
