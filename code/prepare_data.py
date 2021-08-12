@@ -118,22 +118,25 @@ if __name__ == "__main__":
     # 변형된 전체 데이터 통합하여 하나의 리스트에 저장
     total_data = combine_json_data(modified_file_list)
     
+    # write rel2id.json
     write_rel2id("../data/rel2id.json", total_data)
 
     # total_data_num = 전체 데이터 개수
     total_data_num = len(total_data)
     print(f"Total number of data: {len(total_data)}")
     print('*' * 30)
+
     # train, dev, test split
     train_data = total_data[:int(0.6 * total_data_num)]
     dev_data = total_data[int(0.6 * total_data_num):int(0.8 * total_data_num)]
     test_data = total_data[int(0.8 * total_data_num):]
-
     print(f"The number of train data: {len(train_data)}")
     print(f"The number of dev data: {len(dev_data)}")
     print(f"The number of test data: {len(test_data)}")
     print('*' * 30)
 
-    for data in total_data:
-        write_data("./triple_data.txt", data)
+    # write train.txt, dev.txt, test.txt
+    write_text_file("../data/train.txt", train_data)
+    write_text_file("../data/dev.txt", dev_data)
+    write_text_file("../data/test.txt", test_data)
     
