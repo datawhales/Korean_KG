@@ -109,18 +109,24 @@ if __name__ == "__main__":
         os.mkdir("../data/modified_KBN_data")
 
     # 각 json file 형태 변형하여 새로운 json 파일 생성
+    print("Modifying all data..")
     for json_file in file_list:
         modify_data(input_filepath=json_file)
-
+    print("All data modified!")
+    print('*' * 30)
     modified_file_list = glob("../data/modified_KBN_data/*")
     modified_file_list.sort()
-
-    # 변형된 전체 데이터 통합하여 하나의 리스트에 저장
-    total_data = combine_json_data(modified_file_list)
     
+    # 변형된 전체 데이터 통합하여 하나의 리스트에 저장
+    print("Combining all json files..")
+    total_data = combine_json_data(modified_file_list)
+    print("All files combined!")
+    print('*' * 30)
     # write rel2id.json
+    print("Writing rel2id.json..")
     write_rel2id("../data/rel2id.json", total_data)
-
+    print("Writing finished!")
+    print('*' * 30)
     # total_data_num = 전체 데이터 개수
     total_data_num = len(total_data)
     print(f"Total number of data: {len(total_data)}")
@@ -136,6 +142,12 @@ if __name__ == "__main__":
     print('*' * 30)
 
     # write train.txt, dev.txt, test.txt
+    print("Start writing train.txt..")
     write_text_file("../data/train.txt", train_data)
+    print("Start writing dev.txt..")
     write_text_file("../data/dev.txt", dev_data)
+    print("Start writing test.txt..")
     write_text_file("../data/test.txt", test_data)
+    print('*' * 30)
+    print("All data prepared!!")
+    print('*' * 30)
