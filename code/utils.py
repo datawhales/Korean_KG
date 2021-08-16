@@ -142,13 +142,19 @@ class EntityPosMarker:
 
         return tokenized_input_ids, subj_marker_start, subj_marker_end, obj_marker_start, obj_marker_end
 
-def sample_train_dataset(dataset_path, prop):
+def get_data_from_txt(text_filename):
+    """ json 형태로 되어있는 .txt file의 data를 읽어오는 함수.
+    """
     data = []
-    with open(os.path.join(dataset_path, "train.txt")) as f:
+    with open(text_filename) as f:
         lines = f.readlines()
         for line in lines:
             item = json.loads(line)
             data.append(item)
+    return data
+
+def sample_train_dataset(dataset_path, prop):
+    data = get_data_from_txt(os.path.join(dataset_path, "train.txt"))
     
     reduced_data = []
     reduced_times = 1 / prop
@@ -169,7 +175,7 @@ def sample_train_dataset(dataset_path, prop):
             dump = json.dumps(item, ensure_ascii=False)
             f.write(dump + '\n')
     print(f"*********** {dataset_path}/train_{str(prop)}.txt prepared!! ***********")
-    
+
 if __name__ == "__main__":
     data_dir = "../data"
     sample_train_dataset(dataset_path=data_dir, prop=0.1)
