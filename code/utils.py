@@ -1,8 +1,8 @@
 import os
-from glob import glob
 import json
 import re
-import argparse
+import random
+from collections import defaultdict
 
 from transformers import BertTokenizer
 
@@ -141,12 +141,36 @@ class EntityPosMarker:
         tokenized_input_ids = self.tokenizer.convert_tokens_to_ids(tokenized_sentence)
 
         return tokenized_input_ids, subj_marker_start, subj_marker_end, obj_marker_start, obj_marker_end
-        
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--filepath", dest="filepath", type=str, help="filepath")
-    
-    args = parser.parse_args()
 
-    files = glob('../data/KBN_data/*')
-    files.sort()
+def sample_train_dataset(dataset_path, prop):
+    data = []
+    with open(os.path.join(dataset_path, "train.txt")) as f:
+        lines = f.readlines()
+        for line in lines:
+            item = json.loads(line)
+            data.append(item)
+    
+    reduced_data = []
+    reduced_times = 1 / prop
+    
+    rel2item = defaultdict(list)
+    for item in data:
+        rel2item[item["description"]].append(item)
+    
+    for rel_key in rel2item:
+        item_list = rel2item[rel_key]
+        random.shuffle(item_list)
+        number = int(len(item_list) // reduced_times) if len(item_list) % reduced_times == 0 else int(len(item_list) // reduced_times) + 1
+        reduced_data.extend(item_list[:number])
+    print(f"The number of data in {dataset_path}/train_{str(prop)}.txt: {len(reduced_data)}")
+
+    with open(os.path.join(dataset_path, "train_" + str(prop) + ".txt"), 'w') as f:
+        for item in reduced_data:
+            dump = json.dumps(item, ensure_ascii=False)
+            f.write(dump + '\n')
+    print(f"*********** {dataset_path}/train_{str(prop)}.txt prepared!! ***********")
+    
+if __name__ == "__main__":
+    data_dir = "../data"
+    sample_train_dataset(dataset_path=data_dir, prop=0.1)
+    sample_train_dataset(dataset_path=data_dir, prop=0.01)
