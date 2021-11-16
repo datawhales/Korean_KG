@@ -10,12 +10,12 @@ from utils import EntityPosMarker, get_data_from_txt
 class REDataset(Dataset):
     """ Dataloader for KBN data.
     """
-    def __init__(self, path, args):
+    def __init__(self, path, mode, args):
         super().__init__()
 
         self.args = args
 
-        data = get_data_from_txt(path)
+        data = get_data_from_txt(os.path.join(path, mode))
         total_data = len(data)
 
         marker = EntityPosMarker()
@@ -52,7 +52,7 @@ class REDataset(Dataset):
             self.subj_marker_end[i] = min(subj_marker_end, args.max_length - 1)
             self.obj_marker_start[i] = min(obj_marker_start, args.max_length - 1)
             self.obj_marker_end[i] = min(obj_marker_end, args.max_length - 1)
-            
+
     def __len__(self):
         return len(self.tokenized_input_ids)
 
